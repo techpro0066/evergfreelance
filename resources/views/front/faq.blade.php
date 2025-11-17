@@ -1,0 +1,352 @@
+@extends('layouts.front')
+
+@section('title', 'FAQ | EverGreen Freelancing')
+
+@section('css')
+    <style>
+        /* Hero Section */
+        .faq-hero {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-light) 100%);
+            padding: 120px 0 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .faq-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80') center/cover;
+            opacity: 0.1;
+            z-index: 1;
+        }
+
+        .faq-hero-content {
+            position: relative;
+            z-index: 2;
+            color: white;
+            text-align: center;
+        }
+
+        .faq-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .faq-subtitle {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        /* FAQ Content */
+        .faq-content {
+            padding: 80px 0;
+            background: #f8f9fa;
+        }
+
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-section {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        /* FAQ Items */
+        .faq-item {
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .faq-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .faq-question {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .faq-question:hover {
+            background: #e9ecef;
+        }
+
+        .faq-question i {
+            transition: transform 0.3s ease;
+            color: #339CB5;
+        }
+
+        .faq-question.active i {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            padding: 0 1.5rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .faq-answer.show {
+            padding: 1.5rem;
+            max-height: 500px;
+        }
+
+        .faq-answer p {
+            margin-bottom: 1rem;
+            color: #495057;
+            line-height: 1.6;
+        }
+
+        .faq-answer p:last-child {
+            margin-bottom: 0;
+        }
+
+        
+
+        /* Contact Section */
+        .contact-section {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .contact-info {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: #495057;
+        }
+
+        .contact-item i {
+            font-size: 1.5rem;
+            color: #339CB5;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .faq-title {
+                font-size: 2.5rem;
+            }
+
+            .faq-section {
+                padding: 2rem;
+            }
+
+            .contact-info {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+        }
+    </style>
+@endsection
+
+@section('content')
+    <!-- FAQ Hero -->
+    <section class="faq-hero">
+        <div class="container">
+            <div class="faq-hero-content">
+                <h1 class="faq-title">Frequently Asked Questions</h1>
+                <p class="faq-subtitle">Find answers to common questions about our courses, enrollment process, and platform features.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Content -->
+    <section class="faq-content">
+        <div class="container">
+            <div class="faq-container">
+                                <!-- FAQ Section -->
+                <div class="faq-section">
+                    <h2 class="section-title">Frequently Asked Questions</h2>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            What is EverGreen Freelancing and how do I get started?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>EverGreen Freelancing is an online learning platform that offers comprehensive courses in digital marketing, web development, graphic design, and other in-demand skills. We help individuals and professionals enhance their skills and advance their careers through expert-led courses.</p>
+                            
+                            <p>Getting started is easy! Simply browse our course catalog, select a course that interests you, and click "Enroll Now." You'll be prompted to create an account or log in if you already have one. Once enrolled, you'll have immediate access to all course materials.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            What payment methods do you accept?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>We accept all major credit cards (Visa, MasterCard, American Express), PayPal, and bank transfers. All payments are processed securely through our trusted payment partners. You'll receive an email confirmation once your payment is processed.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            Do you offer refunds?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Yes, we offer a 30-day money-back guarantee. If you're not satisfied with your course within 30 days of enrollment, you can request a full refund. Simply contact our support team, and we'll process your refund within 5-7 business days.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            Can I access courses on mobile devices?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Absolutely! Our platform is fully responsive and works on all devices including smartphones, tablets, and desktop computers. You can watch videos, download materials, and participate in discussions from anywhere, anytime.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            How long do I have access to the courses?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>You have lifetime access to all courses you enroll in. This means you can revisit the content anytime, watch videos multiple times, and download course materials for future reference. We also provide free updates to course content.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            Do I receive a certificate upon completion?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Yes! Upon completing a course, you'll receive a certificate of completion that you can download and print. This certificate includes your name, course title, completion date, and can be shared on your resume or LinkedIn profile.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            What if I have technical issues?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>If you encounter any technical issues, our support team is here to help! You can contact us through email, live chat, or phone. We typically respond within 24 hours and will work to resolve your issue as quickly as possible.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            Are the courses suitable for beginners?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Yes! Our courses are designed to accommodate learners of all skill levels. We offer courses for complete beginners as well as advanced professionals. Each course clearly indicates the required skill level, and our instructors provide step-by-step guidance throughout the learning process.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Section -->
+                <div class="contact-section">
+                    <h2 class="section-title">Still Have Questions?</h2>
+                    <p>If you couldn't find the answer you're looking for, our support team is here to help!</p>
+                    
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>info@evergfreelance.com</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-phone"></i>
+                            <span>+63 960 235 8974</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fab fa-whatsapp"></i>
+                            <span>WhatsApp Support</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+@endsection
+
+@section('scripts')
+<script>
+    // FAQ Toggle Function
+    function toggleFAQ(element) {
+        const answer = element.nextElementSibling;
+        const icon = element.querySelector('i');
+
+        // Check if current FAQ item is already open
+        const isCurrentlyOpen = answer.classList.contains('show');
+
+        // Close all FAQ items first
+        const allQuestions = document.querySelectorAll('.faq-question');
+        const allAnswers = document.querySelectorAll('.faq-answer');
+
+        allQuestions.forEach(q => q.classList.remove('active'));
+        allAnswers.forEach(a => a.classList.remove('show'));
+
+        // If current item was not open, open it
+        if (!isCurrentlyOpen) {
+            element.classList.add('active');
+            answer.classList.add('show');
+        }
+        // If current item was already open, it will remain closed (since we closed all items above)
+    }
+
+
+
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+        });
+    });
+</script>
+@endsection

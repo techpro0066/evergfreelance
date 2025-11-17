@@ -1,0 +1,220 @@
+@extends('layouts.front')
+
+@section('title', 'EverGreen Freelancing')
+
+@section('content')
+<!-- Banner Section -->
+<section id="home" class="banner-section">
+    <div class="banner-content" style="background-image: url('https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2074&q=80');">
+        <div class="banner-overlay"></div>
+        <div class="container">
+            <div class="row align-items-center min-vh-100">
+                <div class="col-lg-8 col-md-10">
+                    <h1 class="banner-title">Your Path to a Thriving Freelance Career Starts Here</h1>
+                    <p class="banner-subtitle">What if you could earn more while working from home? Learn the key steps to kick-starting your freelance profession, maintaining clients, and creating a sustainable, flourishing career.</p>
+                    <p class="banner-description">Take the first step today! Register now and get the tools, guidance, and support you need to be a successful freelancer.</p>
+                    <div class="banner-buttons">
+                        @if(!auth()->check())
+                            <a href="{{ route('register') }}" class="btn btn-primary btn-lg btn-register me-3">Register Now</a>
+                        @endif
+                        <button class="btn btn-outline-light btn-lg d-none">Learn More</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- What You Gain Section -->
+<section class="benefits-section py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-12">
+                <h2 class="section-title">What You Gain From Us</h2>
+                <p class="section-subtitle">Discover the advantages that set us apart from the competition</p>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-certificate"></i>
+                    </div>
+                    <h3>Certificate of completion</h3>
+                    <p>Earn certificates for the courses you complete, perfect for boosting your resume and career prospects.</p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Expert Community</h3>
+                    <p>Join a community of learners and professionals guided by our expert team of coaches. Network, collaborate, and grow together.</p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3>Lifetime Access</h3>
+                    <p>Once you enroll, you get lifetime access to course materials, freebies and updates. Learn at your own pace.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Learning to Earning Section -->
+<section class="learning-section py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="section-title">From Learning to Earning: Comprehensive Training for Long-Term Success</h2>
+                <p class="learning-description">
+                    Our program offers expert training, tailored support, and practical tools to help you build the skills you need while fostering lasting client relationships. With our structured approach, you can lay the groundwork for a successful and sustainable freelance career.
+                </p>
+                <p class="learning-highlight">
+                    Master essential skills in high-demand, outsourced fields, including client acquisition and retention through our expert coaching, hands-on exercises, and valuable resources.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Founder Section -->
+<section class="founder-section py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <div class="founder-content">
+                    <h2>The Story Behind Evergreen Freelancing</h2>
+                    <p class="founder-message">
+                        Meet our founder and learn how her journey brought Evergreen Freelancing to life. Her own journey began humbly as a call taker, but she swiftly climbed the ranks of the freelancing industry, eventually serving clients in business operations and management as an executive VA. This firsthand experience revealed the core challenges for both freelancers and clients. It was these crucial insights that sparked the creation of Evergreen Freelancing, a platform designed to solve these problems through education and empower freelancers to build successful careers.
+                    </p>
+                    <p class="founder-cta">
+                        Ready to Write Your Own Success Story?<br>
+                        Take the first step towards building your thriving freelance career. Explore our courses today and discover how Evergreen Freelancing can help you achieve your professional goals!
+                    </p>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="founder-card">
+                    <div class="founder-image-container">
+                        <div class="founder-image">
+                            <img src="{{ asset('front/assets/images/owner.jpg') }}" alt="Audreana Laxa - Director of Evergreen Freelancing" class="founder-photo">
+                        </div>
+                    </div>
+                    <div class="founder-card-footer">
+                        <h4 class="founder-name">Audreana Laxa</h4>
+                        <p class="founder-designation">Director of Evergreen Freelancing</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="testimonials-section py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-12">
+                <h2 class="section-title">Hear From Happy Clients</h2>
+                <p class="section-subtitle">As a company, our clients' experiences and satisfaction are of utmost importance to us. See what they have to say.</p>
+            </div>
+        </div>
+        
+        <div class="testimonial-carousel-container">
+            <div class="testimonial-carousel">
+                <div class="testimonial-slide">
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <p>"The way they were so composed and friendly really stood out, pero ang pinaka-valuable lesson na natutunan ko ay ang quality work ethic nila. I learned that accuracy & quality is crucial, no matter how tiresome the task gets and applying this to my current freelance career has contributed to my growth as an individual and with my client."</p>
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="author-image">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="author-info">
+                                <h5>Vincent C</h5>
+                                <p class="d-none">Software Developer</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-slide">
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <p>"As a first-time VA my career start was surprisingly smooth. The coach explained everything step-by-step, and clearly knew what she was talking about. Their supportive approach and deep knowledge made learning how to freelance easy and I quickly mastered my tasks through the tips I learned from the course. Would highly recommend!"</p>
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="author-image">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="author-info">
+                                <h5>Ashley R</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-slide">
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <p>"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi sit amet felis risus. Duis eu risus quis libero eleifend finibus eget id turpis. Phasellus feugiat, orci sed cursus bibendum, dui turpis elementum sapien, et egestas dolor purus quis massa."</p>
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="author-image">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="author-info">
+                                <h5>Jonny Donut</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="carousel-controls">
+                <button class="carousel-btn prev-btn">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="carousel-dots"></div>
+                <button class="carousel-btn next-btn">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Section -->
+<section class="cta-section py-5">
+    <div class="cta-background">
+        <div class="cta-overlay"></div>
+    </div>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10 text-center">
+                <h2 class="cta-title">Ready To Start Your Journey With Us?</h2>
+                <p class="cta-subtitle">The path to your freelance success is just a click away.</p>
+                <div class="cta-content">
+                    <p class="cta-description">Join a supportive network of motivated professionals and gain the knowledge and skills needed to thrive in a competitive industry. Register today and start creating the career and lifestyle you've always wanted.</p>
+                </div>
+                <div class="cta-buttons">
+                    @if(!auth()->check())
+                        <a href="{{ route('register') }}" class="btn btn-lg btn-register me-3">Register Today</a>
+                    @endif
+                    <button class="btn btn-outline-light btn-lg d-none">Learn More</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+@endsection
