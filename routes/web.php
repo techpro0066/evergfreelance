@@ -49,6 +49,11 @@ Route::middleware(['auth', CheckAdmin::class])->name('admin.')->group(function (
         Route::get('/admin/courses/create/{id?}', 'create')->name('courses.create');
         Route::post('/admin/courses/store', 'store')->name('courses.store');
         Route::post('/admin/courses/delete', 'delete')->name('courses.delete');
+        
+        Route::post('/upload-course-chunk', [CoursesController::class, 'uploadChunk']);
+        Route::post('/merge-course-chunks', [CoursesController::class, 'mergeChunks']);
+        Route::delete('/delete-course-file', [CoursesController::class, 'deleteFile'])->name('course.file.delete');
+        Route::post('/delete-course-file', [CoursesController::class, 'deleteFile']); // POST route for cleanup on page unload
     });
 
     Route::controller(ModuleController::class)->group(function(){

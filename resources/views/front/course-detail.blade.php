@@ -584,6 +584,166 @@
         .remove-course:hover{
             background: linear-gradient(135deg, #962c37, #962c37);
         }
+
+        /* Video Player Section */
+        .course-video-section {
+            padding: 80px 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        }
+
+        .video-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        .video-wrapper {
+            background: #000;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+        }
+
+        .video-wrapper video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #000;
+        }
+
+        .video-section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .video-section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .video-section-title i {
+            color: #339CB5;
+            font-size: 2rem;
+        }
+
+        .video-section-subtitle {
+            font-size: 1.1rem;
+            color: #6c757d;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .video-controls-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            padding: 2rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .video-wrapper:hover .video-controls-overlay {
+            opacity: 1;
+        }
+
+        .video-play-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: rgba(51, 156, 181, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .video-wrapper:hover .video-play-overlay {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .video-play-overlay:hover {
+            background: rgba(51, 156, 181, 1);
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .video-play-overlay i {
+            color: white;
+            font-size: 2rem;
+            margin-left: 5px;
+        }
+
+        .course-video-player::-webkit-media-controls-panel {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .course-video-player::-webkit-media-controls-play-button {
+            background-color: #339CB5;
+            border-radius: 50%;
+        }
+
+        .course-video-player::-webkit-media-controls-current-time-display,
+        .course-video-player::-webkit-media-controls-time-remaining-display {
+            color: white;
+        }
+
+        /* Responsive Video */
+        @media (max-width: 991.98px) {
+            .course-video-section {
+                padding: 60px 0;
+            }
+
+            .video-section-title {
+                font-size: 2rem;
+            }
+
+            .video-section-subtitle {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .course-video-section {
+                padding: 40px 0;
+            }
+
+            .video-section-title {
+                font-size: 1.75rem;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .video-section-title i {
+                font-size: 1.5rem;
+            }
+
+            .video-wrapper {
+                border-radius: 15px;
+            }
+        }
     </style>
 @endsection
 
@@ -613,6 +773,38 @@
             </div>
         </div>
     </section>
+    
+    @if(!is_null($course->video) && $course->video != '')
+    <!-- Course Video Section -->
+    <section class="course-video-section">
+        <div class="video-container">
+            <div class="video-section-header">
+                <h2 class="video-section-title">
+                    <i class="fas fa-play-circle"></i>
+                    Course Preview Video
+                </h2>
+                <p class="video-section-subtitle">
+                    Watch this preview to get a glimpse of what you'll learn in this course
+                </p>
+            </div>
+            <div class="video-wrapper">
+                <video 
+                    controls 
+                    controlsList="nodownload"
+                    poster="{{ asset($course->thumbnail) }}"
+                    preload="metadata"
+                    class="course-video-player">
+                    <source src="{{ asset($course->video) }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="video-play-overlay">
+                    <i class="fas fa-play"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+    @endif
+
     <section class="course-content">
         <div class="container">
             <div class="course-container">
@@ -645,6 +837,74 @@
             setInterval(function(){
                 checkStatus();
             }, 1000);
+
+            // Video player enhancements
+            var videoPlayer = document.querySelector('.course-video-player');
+            if(videoPlayer) {
+                // Add loading state
+                videoPlayer.addEventListener('loadstart', function() {
+                    this.style.opacity = '0.7';
+                });
+
+                videoPlayer.addEventListener('canplay', function() {
+                    this.style.opacity = '1';
+                });
+
+                // Handle video errors gracefully
+                videoPlayer.addEventListener('error', function() {
+                    console.error('Video loading error');
+                    var wrapper = this.closest('.video-wrapper');
+                    if(wrapper) {
+                        wrapper.innerHTML = '<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; text-align: center;"><i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 1rem;"></i><p>Video could not be loaded. Please try again later.</p></div>';
+                    }
+                });
+
+                // Prevent right-click download (additional protection)
+                videoPlayer.addEventListener('contextmenu', function(e) {
+                    e.preventDefault();
+                    return false;
+                });
+
+                // Add keyboard shortcuts
+                videoPlayer.addEventListener('keydown', function(e) {
+                    // Space bar to play/pause
+                    if(e.code === 'Space') {
+                        e.preventDefault();
+                        if(this.paused) {
+                            this.play();
+                        } else {
+                            this.pause();
+                        }
+                    }
+                });
+
+                // Custom play button overlay click handler
+                var playOverlay = document.querySelector('.video-play-overlay');
+                if(playOverlay) {
+                    playOverlay.addEventListener('click', function() {
+                        if(videoPlayer.paused) {
+                            videoPlayer.play();
+                        } else {
+                            videoPlayer.pause();
+                        }
+                    });
+                }
+
+                // Show/hide play overlay based on video state
+                videoPlayer.addEventListener('play', function() {
+                    if(playOverlay) {
+                        playOverlay.style.opacity = '0';
+                        playOverlay.style.pointerEvents = 'none';
+                    }
+                });
+
+                videoPlayer.addEventListener('pause', function() {
+                    if(playOverlay && !videoPlayer.ended) {
+                        playOverlay.style.opacity = '1';
+                        playOverlay.style.pointerEvents = 'auto';
+                    }
+                });
+            }
         });
         toastr.options = {
             "positionClass": "toast-top-center", 

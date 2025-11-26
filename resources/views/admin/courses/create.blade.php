@@ -143,6 +143,17 @@
             box-shadow: 0 5px 15px rgba(51, 156, 181, 0.3);
             color: white;
         }
+        .btn-submit:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.6;
+            transform: none;
+        }
+        .btn-submit:disabled:hover {
+            background: #6c757d;
+            transform: none;
+            box-shadow: none;
+        }
         .btn-cancel {
             background: #6c757d;
             border: none;
@@ -242,6 +253,50 @@
         .dropify {
             height: 100% !important;
         }
+
+        #videoProgressBar {
+            width: 100%;
+            height: 12px;
+            background: linear-gradient(90deg, #e2e8f0 0%, #f1f5f9 100%);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+            border: 1px solid #cbd5e1;
+            margin-top: 1rem;
+        }
+
+        #videoProgressBar::-webkit-progress-bar {
+            background: linear-gradient(90deg, #e2e8f0 0%, #f1f5f9 100%);
+            border-radius: 10px;
+        }
+
+        #videoProgressBar::-webkit-progress-value {
+            background: linear-gradient(90deg, #339CB5 0%, #2a7a8f 50%, #1f5f6f 100%);
+            border-radius: 10px;
+            transition: width 0.3s ease-in-out;
+            box-shadow: 0 2px 4px rgba(51, 156, 181, 0.3);
+        }
+
+        #videoProgressBar::-moz-progress-bar {
+            background: linear-gradient(90deg, #339CB5 0%, #2a7a8f 50%, #1f5f6f 100%);
+            border-radius: 10px;
+        }
+
+        #videoProgressText {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-top: 8px;
+            text-align: center;
+            background: linear-gradient(90deg, #339CB5, #2a7a8f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .video-progress-container {
+            display: none;
+        }
     </style>
 @endsection
 
@@ -292,7 +347,7 @@
                                             <div class="col-12">
                                                 <div class="mb-3">
                                                     <label for="header" class="form-label required-field">Header</label>
-                                                    <input type="text" class="form-control" id="header" name="header" value="{{ $course != null ? old('header', $course->header) : old('header') }}" placeholder="Header">
+                                                    <textarea class="form-control form-textarea" id="header" name="header" rows="4" placeholder="Header">{{ $course != null ? old('header', $course->header) : old('header') }}</textarea>
                                                     @error('header')
                                                         <span class="text-danger">{{ $message }}</span>
                                                     @enderror
@@ -320,9 +375,31 @@
                                             </div>
                                             <div class="col-12">
                                                 <div class="mb-3">
+                                                    <label for="price" class="form-label">Video</label>
+                                                    <input type="file" class="form-control dropify video-file" id="video" name="video" data-max-file-size="200M" data-allowed-file-extensions="mp4" @if(!is_null($course->video)) data-default-file="{{ asset($course->video) }}" @endif>
+                                                    <input type="hidden" name="video_file_path" value="{{ $course != null ? $course->video : '' }}">
+                                                    <div class="video-progress-container">
+                                                        <progress id="videoProgressBar" value="0" max="100"></progress>
+                                                        <p id="videoProgressText">0%</p>
+                                                    </div>
+                                                    @error('video')
+                                                        <span class="text-danger">{{ $message }}</span>
+                                                    @enderror
+                                                </div>
+                                                @if(!is_null($course->video))
+                                                {{-- Icon with view icon --}}
+                                                    <div class="mb-3 d-flex align-items-center gap-2">
+                                                        <i class="fas fa-eye text-primary" style="font-size: 20px;"></i>
+                                                        <a href="{{ asset($course->video) }}" target="_blank">View Video</a>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="mb-3">
                                                     <label for="price" class="form-label required-field">Price</label>
                                                     <input type="text" class="form-control price" id="price" name="price" value="{{ $course != null ? old('price', $course->price) : old('price') }}" placeholder="Price">
-                                                    <input type="hidden" name="old_thumbnail" value="{{ $course != null ? $course->thumbnail : null }}">
+                                                    <input type="hidden" name="old_thumbnail" value="{{ $course != null ? $course->thumbnail : '' }}">
+                                                    <input type="hidden" name="old_video" value="{{ $course != null ? $course->video : '' }}">
                                                     @error('price')
                                                         <span class="text-danger">{{ $message }}</span>
                                                     @enderror
@@ -340,7 +417,7 @@
                                                 </button>
                                             </div>
                                             <div class="col-md-6">
-                                                <button type="submit" class="btn-submit">
+                                                <button type="submit" class="btn-submit" id="submitBtn">
                                                     <i class="fas fa-save me-2"></i>{{ is_null($course) ? 'Create Course' : 'Update Course' }}
                                                 </button>
                                             </div>
@@ -360,6 +437,8 @@
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
     <script src="https://cdn.ckeditor.com/ckeditor5/41.2.0/super-build/ckeditor.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script>
         $(document).ready(function() {
             $('.dropify').dropify();
@@ -523,12 +602,302 @@
             }
         });
 
-        $(document).on('click', '.btn-cancel', function(){
-            window.location.href = "{{ route('admin.courses') }}";
+        // Track if form was successfully submitted to avoid deleting saved videos
+        var formSubmitted = false;
+        
+        // Function to cleanup uploaded video file if form wasn't submitted
+        function cleanupUnsubmittedVideo(useFetchKeepalive) {
+            if(formSubmitted) return; // Don't delete if form was submitted
+            
+            var videoFilePath = $('input[name="video_file_path"]').val();
+            var oldVideo = $('input[name="old_video"]').val();
+            var isEditMode = $('input[name="id"]').length > 0 && $('input[name="id"]').val() != '';
+            
+            // Only delete if:
+            // 1. There's a new uploaded video (video_file_path exists)
+            // 2. It's different from the old video (new upload)
+            // 3. Form wasn't submitted
+            if(videoFilePath && videoFilePath != '' && videoFilePath != oldVideo) {
+                var csrfToken = $('meta[name="csrf-token"]').attr('content') || $('input[name="_token"]').val();
+                var deleteData = {
+                    file_url: videoFilePath,
+                    id: isEditMode ? $('input[name="id"]').val() : ''
+                };
+                
+                if(useFetchKeepalive) {
+                    // Use fetch with keepalive for beforeunload (more reliable than axios)
+                    var formData = new FormData();
+                    formData.append('file_url', deleteData.file_url);
+                    if(deleteData.id) formData.append('id', deleteData.id);
+                    formData.append('_token', csrfToken);
+                    
+                    fetch('/delete-course-file', {
+                        method: 'POST',
+                        body: formData,
+                        keepalive: true // Ensures request completes even if page unloads
+                    }).catch(function(error) {
+                        console.error('Error cleaning up video file on unload:', error);
+                    });
+                } else {
+                    // Use axios for cancel button (allows proper error handling)
+                    axios({
+                        method: 'delete',
+                        url: "/delete-course-file",
+                        data: deleteData,
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken
+                        }
+                    }).then(function(response) {
+                        console.log('Unsubmitted video file cleaned up successfully');
+                    }).catch(function(error) {
+                        console.error('Error cleaning up video file:', error);
+                    });
+                }
+            }
+        }
+        
+        $(document).on('click', '.btn-cancel', function(e){
+            e.preventDefault();
+            cleanupUnsubmittedVideo(false);
+            // Small delay to allow cleanup request to complete
+            setTimeout(function() {
+                window.location.href = "{{ route('admin.courses') }}";
+            }, 300);
+        });
+        
+        // Cleanup on page unload (user closes tab/refreshes without submitting)
+        $(window).on('beforeunload', function() {
+            cleanupUnsubmittedVideo(true); // Use fetch with keepalive for more reliable cleanup
+        });
+
+        // Intercept form submission to prevent sending large video file
+        // Always remove video file input since we use chunked uploads
+        $('#courseForm').on('submit', function(e) {
+            var videoFileInput = $('.video-file')[0];
+            var hasVideoFile = videoFileInput && videoFileInput.files && videoFileInput.files.length > 0;
+            var hasVideoFilePath = $('input[name="video_file_path"]').val() != '';
+            
+            // If there's a video file in the input, remove it to prevent "post data too large" error
+            // We only use video_file_path (from chunked upload) or old_video (when editing)
+            if(hasVideoFile || hasVideoFilePath) {
+                // Create a new form without the video file input
+                var formData = new FormData(this);
+                formData.delete('video'); // Remove video file from form data
+                
+                // Submit form via AJAX to have full control
+                e.preventDefault();
+                
+                var submitBtn = $('#submitBtn');
+                submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Processing...');
+                
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        // Mark form as submitted to prevent cleanup
+                        formSubmitted = true;
+                        
+                        if(response.redirect) {
+                            window.location.href = response.redirect;
+                        } else {
+                            window.location.href = "{{ route('admin.courses') }}";
+                        }
+                    },
+                    error: function(xhr) {
+                        submitBtn.prop('disabled', false).html('<i class="fas fa-save me-2"></i>{{ is_null($course) ? "Create Course" : "Update Course" }}');
+                        
+                        var errors = xhr.responseJSON?.errors || {};
+                        var errorHtml = '<div class="alert alert-danger"><ul class="mb-0">';
+                        
+                        if(Object.keys(errors).length > 0) {
+                            $.each(errors, function(key, value) {
+                                errorHtml += '<li>' + value[0] + '</li>';
+                            });
+                        } else {
+                            errorHtml += '<li>An error occurred. Please try again.</li>';
+                        }
+                        
+                        errorHtml += '</ul></div>';
+                        $('#alertContainer').html(errorHtml);
+                        
+                        // Scroll to top to show errors
+                        $('html, body').animate({ scrollTop: 0 }, 500);
+                    }
+                });
+                
+                return false;
+            }
         });
 
         $(document).on('input','.price',function (e) {
             this.value = this.value.replace(/[^0.00-9.99]/g, '').replace(/(\..*)\./g, '$1').replace(new RegExp("(^[\\d]{50})[\\d]", "g"), '$1');
+        });
+        
+        // Chunked video upload functionality
+        $('.video-file').on('change', async function(e) {
+            const file = e.target.files[0];
+            // Check current state (not initial state)
+            var currentIsEditMode = $('input[name="id"]').length > 0 && $('input[name="id"]').val() != '';
+            var currentVideoPath = $('input[name="video_file_path"]').val();
+            
+            if (!file) {
+                // If no file selected and no existing video, disable submit for new courses
+                if(!currentIsEditMode && !currentVideoPath) {
+                    $('#submitBtn').prop('disabled', true);
+                }
+                return;
+            }
+
+            const extension = file.name.split('.').pop();
+            if(extension != 'mp4') {
+                swal({
+                    title: "Error!",
+                    text: "Only .mp4 files are allowed",
+                    icon: "error"
+                });
+                // Reset the dropify input
+                $('.video-file').dropify('reset');
+                // Disable submit button if creating new course (video required)
+                if(!currentIsEditMode && !currentVideoPath) {
+                    $('#submitBtn').prop('disabled', true);
+                }
+                return;
+            }
+
+            // Disable submit button during upload
+            $('#submitBtn').prop('disabled', true);
+
+            // Show progress bar
+            $('.video-progress-container').show();
+            $('#videoProgressBar').val(0);
+            $('#videoProgressText').text('0%');
+
+            const chunkSize = 2 * 1024 * 1024; // 2 MB
+            const totalChunks = Math.ceil(file.size / chunkSize);
+            let uploaded = 0;
+
+            try {
+                for (let i = 0; i < totalChunks; i++) {
+                    const start = i * chunkSize;
+                    const end = Math.min(start + chunkSize, file.size);
+                    const chunk = file.slice(start, end);
+
+                    let formData = new FormData();
+                    formData.append("file", chunk);
+                    formData.append("fileName", file.name);
+                    formData.append("chunkIndex", i);
+
+                    await axios.post("/upload-course-chunk", formData, {
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') || $('input[name="_token"]').val()
+                        },
+                        onUploadProgress: (progressEvent) => {
+                            let percent = Math.round(((uploaded + progressEvent.loaded) / file.size) * 100);
+                            $('#videoProgressBar').val(percent);
+                            $('#videoProgressText').text(percent + "%");
+                        }
+                    });
+
+                    uploaded += chunk.size;
+                }
+
+                // After all chunks uploaded → Merge request
+                const response = await axios.post("/merge-course-chunks", {
+                    fileName: file.name,
+                    totalChunks: totalChunks
+                }, {
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') || $('input[name="_token"]').val()
+                    }
+                });
+                
+                if(response.data.status === 'merged') {
+                    $('input[name="video_file_path"]').val(response.data.path);
+                    $('#videoProgressText').text('Upload Complete!');
+                    
+                    // Clear the file input to prevent sending large file in form submission
+                    // This prevents "post data too large" error
+                    $('.video-file').dropify('reset');
+                    
+                    // Enable submit button after successful upload
+                    $('#submitBtn').prop('disabled', false);
+                    console.log('Video upload complete. Button enabled. Path:', response.data.path);
+                    
+                    // Hide progress bar after a delay
+                    setTimeout(function() {
+                        $('.video-progress-container').hide();
+                    }, 2000);
+                } else {
+                    console.error('Merge failed:', response);
+                    $('#submitBtn').prop('disabled', false); // Enable button even if merge status unclear
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                swal({
+                    title: "Error!",
+                    text: "Video upload failed. Please try again.",
+                    icon: "error"
+                });
+                $('.video-file').dropify('reset');
+                $('.video-progress-container').hide();
+                $('input[name="video_file_path"]').val('');
+                
+                // Check current state after error
+                var currentIsEditMode = $('input[name="id"]').length > 0 && $('input[name="id"]').val() != '';
+                var currentVideoPath = $('input[name="video_file_path"]').val();
+                
+                // Disable button if creating new course (video required)
+                // Keep enabled if editing (video optional)
+                if(!currentIsEditMode && !currentVideoPath) {
+                    $('#submitBtn').prop('disabled', true);
+                } else {
+                    $('#submitBtn').prop('disabled', false);
+                }
+            }
+        });
+
+        // Handle file removal
+        $(document).on('click', '.dropify-clear', function(e) {
+            if($(this).closest('.mb-3').find('.video-file').length > 0) {
+                $('#videoProgressBar').val(0);
+                $('#videoProgressText').text('0%');
+                $('.video-progress-container').hide();
+                
+                var file_url = $('input[name="video_file_path"]').val();
+                if(file_url) {
+                    axios({
+                        method: 'delete',
+                        url: "/delete-course-file",
+                        data: {
+                            file_url: file_url,
+                            id: $('input[name="id"]').val()
+                        },
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') || $('input[name="_token"]').val()
+                        }
+                    }).then(function(response) {
+                        console.log('Video file deleted successfully');
+                    }).catch(function(error) {
+                        console.error('Error deleting video file:', error);
+                    });
+                }
+                $('input[name="video_file_path"]').val('');
+                
+                // Disable submit button when video is removed
+                // For new courses, video is required so disable button
+                // For editing, video is optional so keep button enabled
+                var isEditMode = $('input[name="id"]').length > 0 && $('input[name="id"]').val() != '';
+                if(!isEditMode) {
+                    $('#submitBtn').prop('disabled', true);
+                    console.log('Video removed. Button disabled for new course.');
+                } else {
+                    $('#submitBtn').prop('disabled', false);
+                    console.log('Video removed. Button remains enabled for edit mode.');
+                }
+            }
         });
     </script>   
 @endsection
