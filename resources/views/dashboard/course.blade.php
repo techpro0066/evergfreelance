@@ -437,7 +437,7 @@
                                                                 <span>{{$lesson->type}}</span>
                                                             </div>
                                                             <div class="material-actions">
-                                                                <a href="{{asset($lesson->file)}}" class="btn-material btn-play" target="_blank">
+                                                                <a href="{{ route('dashboard.lesson.file', $lesson->id) }}" class="btn-material btn-play" target="_blank">
                                                                     <i class="fas fa-{{$lesson->type == 'pdf' ? 'file-pdf' : 'play'}}"></i>
                                                                     {{$lesson->type == 'pdf' ? 'View' : 'Play'}}
                                                                 </a>

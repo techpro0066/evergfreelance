@@ -273,6 +273,18 @@
             background: linear-gradient(135deg, #6c757d, #495057);
         }
 
+        .purchased-cart {
+            background: #28a745 !important;
+            color: white !important;
+            cursor: pointer;
+        }
+
+        .purchased-cart:hover {
+            background: #218838 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
         .remove-cart{
             background: linear-gradient(135deg, #dc3545, #c82333);
         }
@@ -442,14 +454,20 @@
                                     <div class="course-description">{{ Str::limit($course->header, 150) }}</div>
 
                                     <div class="course-price">
-                                        <span>${{ $course->price }}</span>
+                                        <span>₱{{ $course->price }}</span>
                                     </div>
 
                                     <div class="course-actions">
                                         <a href="{{ route('front.course.detail', $course->slug) }}" class="btn-details">View Details</a>
-                                        <button class="cart {{ session()->has('cart') && in_array($course->id, array_column(session()->get('cart'), 'id')) ? 'remove-cart' : 'btn-cart' }}" data-id="{{ $course->id }}">
-                                            <i class="{{ session()->has('cart') && in_array($course->id, array_column(session()->get('cart'), 'id')) ? 'fas fa-trash' : 'fas fa-shopping-cart' }}"></i>
-                                        </button>
+                                        @if(in_array($course->id, $purchasedCourseIds ?? []))
+                                            <a href="{{ route('dashboard.my.courses.show', $course->slug) }}" class="cart purchased-cart" title="Already Purchased">
+                                                <i class="fas fa-check-circle"></i>
+                                            </a>
+                                        @else
+                                            <button class="cart {{ session()->has('cart') && in_array($course->id, array_column(session()->get('cart'), 'id')) ? 'remove-cart' : 'btn-cart' }}" data-id="{{ $course->id }}">
+                                                <i class="{{ session()->has('cart') && in_array($course->id, array_column(session()->get('cart'), 'id')) ? 'fas fa-trash' : 'fas fa-shopping-cart' }}"></i>
+                                            </button>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -506,7 +524,12 @@
 
                         }
                         else{
-                            toastr.info(response.message);
+                            if(response.already_purchased){
+                                // Course already purchased - show warning
+                                toastr.warning(response.message);
+                            } else {
+                                toastr.info(response.message);
+                            }
                         }
                     },
                     error: function(xhr, status, error){
@@ -573,7 +596,17 @@
                         },
                         success: function(response){
                             if(response.success){
-                                if(response.message == 'Course in cart'){
+                                if(response.already_purchased){
+                                    // Course already purchased - replace button with purchased link
+                                    if(!cart_btn.hasClass('purchased-cart')){
+                                        var courseSlug = cart_btn.closest('.course-card').find('.btn-details').attr('href').split('/').pop();
+                                        var purchasedHtml = '<a href="/dashboard/mycourses/' + courseSlug + '" class="cart purchased-cart" title="Already Purchased">' +
+                                            '<i class="fas fa-check-circle"></i>' +
+                                            '</a>';
+                                        cart_btn.replaceWith(purchasedHtml);
+                                    }
+                                }
+                                else if(response.message == 'Course in cart'){
                                     cart_btn.addClass('remove-cart');
                                     cart_btn.removeClass('btn-cart');
                                     cart_btn.find('i').addClass('fa-trash');

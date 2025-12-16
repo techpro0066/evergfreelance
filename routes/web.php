@@ -34,13 +34,21 @@ Route::middleware(['auth'])->group(function(){
     Route::post('/profile/update', [UserProfileContoller::class, 'update'])->name('profile.update');
     Route::post('/profile/changePassword', [UserProfileContoller::class, 'changePassword'])->name('profile.changePassword');
 
-    Route::post('/checkout', [CheckoutController::class, 'checkout'])->name('checkout');
+    // Payment routes
+    Route::post('/checkout/create-payment-intent', [CheckoutController::class, 'createPaymentIntent'])->name('checkout.create.payment.intent');
+    Route::post('/checkout/process-payment', [CheckoutController::class, 'processPayment'])->name('checkout.process.payment');
+    Route::post('/checkout/verify-payment', [CheckoutController::class, 'verifyPayment'])->name('checkout.verify.payment');
+    Route::post('/checkout', [CheckoutController::class, 'checkout'])->name('checkout'); // Keep for backward compatibility
 
     Route::controller(MyCoursesController::class)->group(function(){
         Route::get('/dashboard/mycourses', 'index')->name('dashboard.my.courses');
         Route::get('/dashboard/{slug}', 'showCourse')->name('dashboard.my.courses.show');
+        Route::get('/dashboard/lesson/{lessonId}/file', 'downloadFile')->name('dashboard.lesson.file');
     });
 });
+
+// Webhook route (no auth required, but should verify signature)
+Route::post('/webhooks/paymongo', [CheckoutController::class, 'webhook'])->name('webhooks.paymongo');
 
 Route::middleware(['auth', CheckAdmin::class])->name('admin.')->group(function () {
 
