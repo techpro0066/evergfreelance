@@ -228,7 +228,7 @@
                             <i class="fas fa-chevron-down"></i>
                         </div>
                         <div class="faq-answer">
-                            <p>Yes, we offer a 30-day money-back guarantee. If you're not satisfied with your course within 30 days of enrollment, you can request a full refund. Simply contact our support team, and we'll process your refund within 5-7 business days.</p>
+                            <p>We have a no refund policy, therefore no refunds will be issued for any reason once payment has been made.</p>
                         </div>
                     </div>
 
