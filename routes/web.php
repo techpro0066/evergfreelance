@@ -95,6 +95,7 @@ Route::name('front.')->group(function(){
     Route::get('/about-us', [FrontController::class, 'aboutUs'])->name('about.us');
     Route::get('/faq', [FrontController::class, 'faq'])->name('faq');
     Route::get('/contact', [FrontController::class, 'contact'])->name('contact');
+    Route::post('/store-intended-url', [FrontController::class, 'storeIntendedUrl'])->name('store.intended.url');
     Route::post('/add-to-cart', [FrontController::class, 'addToCart'])->name('add.to.cart');
     Route::post('/remove-from-cart', [FrontController::class, 'removeFromCart'])->name('remove.from.cart');
     Route::post('/check-status', [FrontController::class, 'checkStatus'])->name('check.status');

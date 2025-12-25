@@ -52,6 +52,16 @@ class FrontController extends Controller
         return view('front.contact');
     }
 
+    public function storeIntendedUrl(Request $request){
+        // Store the intended URL in session for redirect after login
+        $intendedUrl = $request->intended_url;
+        if ($intendedUrl) {
+            session()->put('intended_course_url', $intendedUrl);
+            return response()->json(['success' => true]);
+        }
+        return response()->json(['success' => false]);
+    }
+
     public function addToCart(Request $request){
         $courseId = $request->course_id;
         $course = Course::find($courseId);
@@ -62,7 +72,14 @@ class FrontController extends Controller
         
         // Check if user is authenticated
         if (!Auth::check()) {
-            return response()->json(['success' => false, 'message' => 'Please login to add courses to cart']);
+            // Store the course URL in session so we can redirect back after login
+            $courseUrl = $request->course_url ?? route('front.course.detail', $course->slug);
+            session()->put('intended_course_url', $courseUrl);
+            return response()->json([
+                'success' => false, 
+                'message' => 'Please login to add courses to cart',
+                'redirect_to_login' => true
+            ]);
         }
         
         // Check if user has already purchased this course

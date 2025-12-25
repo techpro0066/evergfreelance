@@ -502,7 +502,8 @@
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}",
-                        course_id: courseId
+                        course_id: courseId,
+                        course_url: window.location.href
                     },
                     success: function(response){
                         if(response.success){
@@ -524,7 +525,12 @@
 
                         }
                         else{
-                            if(response.already_purchased){
+                            if(response.redirect_to_login){
+                                // User needs to login - redirect to login page
+                                // URL is already stored in session by backend
+                                window.location.href = "{{ route('login') }}";
+                            }
+                            else if(response.already_purchased){
                                 // Course already purchased - show warning
                                 toastr.warning(response.message);
                             } else {
@@ -538,7 +544,22 @@
                 });
             }
             else{
-                window.location.href = "{{ route('login') }}";
+                // Store current course URL in session before redirecting to login
+                $.ajax({
+                    url: "{{ route('front.store.intended.url') }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        intended_url: window.location.href
+                    },
+                    success: function(){
+                        window.location.href = "{{ route('login') }}";
+                    },
+                    error: function(){
+                        // Even if storing fails, redirect to login
+                        window.location.href = "{{ route('login') }}";
+                    }
+                });
             }
         });
 

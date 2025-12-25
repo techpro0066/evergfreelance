@@ -28,6 +28,15 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // Check if user was trying to add a course to cart before login
+        $intendedCourseUrl = $request->session()->pull('intended_course_url');
+        
+        if ($intendedCourseUrl) {
+            // Redirect back to the course page they came from
+            return redirect($intendedCourseUrl);
+        }
+
+        // Otherwise, use Laravel's intended redirect or default to dashboard
         return redirect()->intended(route('dashboard', absolute: false));
     }
 
