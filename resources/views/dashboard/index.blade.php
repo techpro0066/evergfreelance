@@ -39,15 +39,17 @@
                     </div>
                 @else
                     <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-graduation-cap"></i>
+                        <a href="{{ route('front.courses') }}" class="text-decoration-none">
+                            <div class="stat-card" style="cursor: pointer;">
+                                <div class="stat-icon">
+                                    <i class="fas fa-graduation-cap"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 class="stat-number">{{ $courses }}</h3>
+                                    <p class="stat-label">Buy Courses</p>
+                                </div>
                             </div>
-                            <div class="stat-content">
-                                <h3 class="stat-number">{{ $courses }}</h3>
-                                <p class="stat-label">Buy Courses</p>
-                            </div>
-                        </div>
+                        </a>
                     </div>
                 @endif
             </div>
