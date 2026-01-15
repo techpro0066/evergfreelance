@@ -21,86 +21,6 @@ class PayMongoService
     }
 
     /**
-     * Convert PayMongo technical error messages to user-friendly messages
-     */
-    protected function getUserFriendlyErrorMessage($technicalMessage)
-    {
-        $errorMappings = [
-            // Card number errors
-            'details.card_number format is invalid' => 'Card number is not valid',
-            'details.card_number is required' => 'Card number is required',
-            'card_number format is invalid' => 'Card number is not valid',
-            'card number format is invalid' => 'Card number is not valid',
-            'Please use PayMongo test cards only when creating test transactions' => 'Card number is not valid for testing',
-            'livemode_mismatched' => 'Card number is not valid for testing',
-            
-            // Expiry date errors
-            'details.exp_month should be an integer' => 'Expiry date is not valid',
-            'details.exp_year should be an integer' => 'Expiry date is not valid',
-            'details.exp_month is required' => 'Expiry date is required',
-            'details.exp_year is required' => 'Expiry date is required',
-            'exp_month should be an integer' => 'Expiry date is not valid',
-            'exp_year should be an integer' => 'Expiry date is not valid',
-            
-            // CVV errors
-            'details.cvc is required' => 'CVV is required',
-            'details.cvc format is invalid' => 'CVV is not valid',
-            'cvc is required' => 'CVV is required',
-            'cvc format is invalid' => 'CVV is not valid',
-            
-            // Card validation errors
-            'card validation failed' => 'Card details are not valid',
-            'card declined' => 'Card was declined. Please try a different card',
-            'insufficient funds' => 'Insufficient funds. Please try a different card',
-            'expired card' => 'Card has expired. Please use a valid card',
-            'invalid card' => 'Card is not valid',
-            'invalid card number' => 'Card number is not valid',
-            
-            // Payment method errors
-            'payment method creation failed' => 'Failed to process card details',
-            'failed to create payment method' => 'Failed to process card details',
-            
-            // Generic errors
-            'api_key_invalid' => 'Payment system error. Please contact support',
-            'parameter_required' => 'Please fill in all required card details',
-            'parameter_data_type_invalid' => 'Card details are not valid',
-        ];
-        
-        // Check for exact match first
-        if (isset($errorMappings[$technicalMessage])) {
-            return $errorMappings[$technicalMessage];
-        }
-        
-        // Check for partial matches (case-insensitive)
-        $lowerMessage = strtolower($technicalMessage);
-        foreach ($errorMappings as $key => $value) {
-            if (stripos($lowerMessage, strtolower($key)) !== false) {
-                return $value;
-            }
-        }
-        
-        // Check for common patterns
-        if (stripos($lowerMessage, 'card_number') !== false || stripos($lowerMessage, 'card number') !== false) {
-            return 'Card number is not valid';
-        }
-        
-        if (stripos($lowerMessage, 'exp_month') !== false || stripos($lowerMessage, 'exp_year') !== false || stripos($lowerMessage, 'expiry') !== false) {
-            return 'Expiry date is not valid';
-        }
-        
-        if (stripos($lowerMessage, 'cvc') !== false || stripos($lowerMessage, 'cvv') !== false) {
-            return 'CVV is not valid';
-        }
-        
-        if (stripos($lowerMessage, 'card') !== false) {
-            return 'Card is not valid';
-        }
-        
-        // Default user-friendly message
-        return 'Payment processing failed. Please check your card details and try again.';
-    }
-
-    /**
      * Make authenticated request to PayMongo API
      */
     protected function makeRequest($method, $endpoint, $data = [])
@@ -132,30 +52,30 @@ class PayMongoService
             }
 
             $error = $response->json();
-            $technicalErrorMessage = 'API request failed';
+            $errorMessage = 'API request failed';
             
+            // Extract direct error message from PayMongo gateway
             if (isset($error['errors']) && is_array($error['errors']) && count($error['errors']) > 0) {
-                $technicalErrorMessage = $error['errors'][0]['detail'] ?? $error['errors'][0]['message'] ?? 'API request failed';
+                // Try to get the detail first (most descriptive), then message, then code
+                $errorMessage = $error['errors'][0]['detail'] 
+                    ?? $error['errors'][0]['message'] 
+                    ?? $error['errors'][0]['code'] 
+                    ?? 'API request failed';
             } elseif (isset($error['message'])) {
-                $technicalErrorMessage = $error['message'];
+                $errorMessage = $error['message'];
             }
-            
-            // Convert technical error to user-friendly message
-            $userFriendlyMessage = $this->getUserFriendlyErrorMessage($technicalErrorMessage);
             
             \Log::error('PayMongo API error', [
                 'endpoint' => $endpoint,
                 'method' => $method,
                 'status' => $response->status(),
-                'technical_error' => $technicalErrorMessage,
-                'user_friendly_error' => $userFriendlyMessage,
+                'error_message' => $errorMessage,
                 'error' => $error
             ]);
             
             return [
                 'success' => false,
-                'message' => $userFriendlyMessage,
-                'technical_message' => $technicalErrorMessage, // Keep for logging/debugging
+                'message' => $errorMessage,
                 'errors' => $error['errors'] ?? [],
                 'status' => $response->status(),
             ];
@@ -164,6 +84,7 @@ class PayMongoService
             return [
                 'success' => false,
                 'message' => $e->getMessage(),
+                'complete_error' => $e,
             ];
         }
     }
@@ -222,6 +143,7 @@ class PayMongoService
             return [
                 'success' => false,
                 'message' => $e->getMessage(),
+                'complete_error' => $e,
             ];
         }
     }
@@ -257,6 +179,7 @@ class PayMongoService
             return [
                 'success' => false,
                 'message' => $e->getMessage(),
+                'complete_error' => $e,
             ];
         }
     }
@@ -289,6 +212,7 @@ class PayMongoService
             return [
                 'success' => false,
                 'message' => $e->getMessage(),
+                'complete_error' => $e,
             ];
         }
     }
@@ -313,6 +237,7 @@ class PayMongoService
             return [
                 'success' => false,
                 'message' => $e->getMessage(),
+                'complete_error' => $e,
             ];
         }
     }
