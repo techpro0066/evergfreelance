@@ -51,11 +51,10 @@ class PayMongoService
             // Card validation errors
             'card validation failed' => 'Card details are not valid',
             'card declined' => 'Card was declined. Please try a different card',
-            'insufficient funds' => 'Request a different card or other form of payment',
+            'insufficient funds' => 'Insufficient funds. Please try a different card',
             'expired card' => 'Card has expired. Please use a valid card',
-            'invalid card' => 'Request a different card or other form of payment',
+            'invalid card' => 'Card is not valid',
             'invalid card number' => 'Card number is not valid',
-            'Payment processing failed. Please try again later.' => 'Wait for a few minutes before re-trying the transaction. <br> Else, request a different card or other form of payment.',
             
             // Payment method errors
             'payment method creation failed' => 'Failed to process card details',
@@ -94,7 +93,7 @@ class PayMongoService
         }
         
         if (stripos($lowerMessage, 'card') !== false) {
-            return 'Request a different card or other form of payment';
+            return 'Card is not valid';
         }
         
         // Default user-friendly message
